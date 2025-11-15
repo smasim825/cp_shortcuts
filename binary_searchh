@@ -1,0 +1,227 @@
+/****************************************************
+ * BINARY SEARCH TEMPLATES FOR ICPC
+ * Use these as drop-in snippets during contests.
+ ****************************************************/
+
+#include <bits/stdc++.h>
+using namespace std;
+
+/****************************************************
+ * 1. Standard Binary Search on Sorted Array
+ * --------------------------------------------------
+ * USE WHEN:
+ * - The array is sorted.
+ * - You want to find x or return -1 if not found.
+ ****************************************************/
+int standard_bs(const vector<int> &a, int x) {
+    int l = 0, r = (int)a.size() - 1;
+    while (l <= r) {
+        int mid = (l + r) / 2;
+        if (a[mid] == x) return mid;      // found
+        else if (a[mid] < x) l = mid + 1; // go right
+        else r = mid - 1;                 // go left
+    }
+    return -1; // not found
+}
+
+/****************************************************
+ * 2. Lower Bound
+ * --------------------------------------------------
+ * USE WHEN:
+ * - You want the FIRST index where a[i] >= x.
+ * - Good for counting numbers < x:
+ *     count_less = lower_bound(a.begin(), a.end(), x) - a.begin();
+ ****************************************************/
+int lb(const vector<int> &a, int x) {
+    return lower_bound(a.begin(), a.end(), x) - a.begin();
+}
+
+/****************************************************
+ * 3. Upper Bound
+ * --------------------------------------------------
+ * USE WHEN:
+ * - You want the FIRST index where a[i] > x.
+ * - Good for counting numbers ≤ x:
+ *     count_le = upper_bound(a.begin(), a.end(), x) - a.begin();
+ ****************************************************/
+int ub(const vector<int> &a, int x) {
+    return upper_bound(a.begin(), a.end(), x) - a.begin();
+}
+
+/****************************************************
+ * 4. Binary Search on Answer (Parametric Search)
+ * --------------------------------------------------
+ * USE WHEN:
+ * - You don't search in an array, but an ANSWER RANGE.
+ * - "check(mid)" is monotonic:
+ *      If mid works => all bigger works (or all smaller works).
+ *
+ * Example problems:
+ * - Aggressive cows
+ * - Split array / minimize maximum subarray sum
+ * - Koko eating bananas
+ ****************************************************/
+bool check(long long mid) {
+    // Write your feasibility test here.
+    return true;
+}
+
+long long bs_on_answer(long long low, long long high) {
+    while (low < high) {
+        long long mid = (low + high) / 2;
+        if (check(mid)) high = mid;       // mid is possible → try smaller
+        else low = mid + 1;               // mid is too small → go right
+    }
+    return low;
+}
+
+/****************************************************
+ * 5. Binary Search on Doubles (Floating Point)
+ * --------------------------------------------------
+ * USE WHEN:
+ * - The answer is a real number (distance, time, angle).
+ * - You want precision up to EPS.
+ *
+ * Common in geometry / physics Problems.
+ ****************************************************/
+double bs_double(double low, double high) {
+    for (int i = 0; i < 200; i++) { // enough for 1e-12 precision
+        double mid = (low + high) / 2;
+        if ( /* check(mid) is true */ true ) high = mid;
+        else low = mid;
+    }
+    return low;
+}
+
+/****************************************************
+ * 6. Find First True in a Boolean Monotonic Array
+ * --------------------------------------------------
+ * USE WHEN:
+ * - You simulate an array like:
+ *     F F F F T T T T T ...
+ * - Typical for conditions like:
+ *     minimal x such that f(x) = true
+ ****************************************************/
+int first_true(int low, int high) {
+    while (low < high) {
+        int mid = (low + high) / 2;
+        if (check(mid)) high = mid; // true → move left
+        else low = mid + 1;         // false → move right
+    }
+    return low;
+}
+
+/****************************************************
+ * 7. Find Last True in a Boolean Monotonic Array
+ * --------------------------------------------------
+ * USE WHEN:
+ * - You simulate:
+ *     T T T T F F F ...
+ ****************************************************/
+int last_true(int low, int high) {
+    while (low < high) {
+        int mid = (low + high + 1) / 2; // bias to the right
+        if (check(mid)) low = mid;  // true → keep going right
+        else high = mid - 1;        // false → go left
+    }
+    return low;
+}
+
+/****************************************************
+ * 8. Ternary Search (Unimodal Function)
+ * --------------------------------------------------
+ * USE WHEN:
+ * - f(x) increases then decreases (or vice versa).
+ * - Used for maximizing/minimizing unimodal functions.
+ ****************************************************/
+double ternary_search(double low, double high) {
+    for (int i = 0; i < 200; i++) {
+        double m1 = low + (high - low) / 3;
+        double m2 = high - (high - low) / 3;
+
+        // Suppose f returns the value of function
+        // double f1 = f(m1), f2 = f(m2);
+
+        double f1 = 0, f2 = 0; // replace with your function
+
+        if (f1 < f2) low = m1; 
+        else high = m2;
+    }
+    return low;
+}
+
+
+
+
+
+
+------------------------------------------------------
+/****************************************************
+ * 8. Ternary Search (Unimodal Function)
+ * --------------------------------------------------
+ * USE WHEN:
+ * - f(x) increases then decreases (or vice versa).
+ * - Find maximum or minimum value of f(x) on [low, high].
+ ****************************************************/
+
+// MAXIMUM of unimodal function
+double ternary_search_max(double low, double high, auto f) {
+    for (int i = 0; i < 200; i++) {  // enough iterations for precision
+        double m1 = low + (high - low) / 3;
+        double m2 = high - (high - low) / 3;
+        if (f(m1) < f(m2)) low = m1;   // max lies in [m1, high]
+        else high = m2;                 // max lies in [low, m2]
+    }
+    return low; // the x-coordinate of maximum
+}
+
+// MINIMUM of unimodal function
+double ternary_search_min(double low, double high, auto f) {
+    for (int i = 0; i < 200; i++) {  // enough iterations for precision
+        double m1 = low + (high - low) / 3;
+        double m2 = high - (high - low) / 3;
+        if (f(m1) > f(m2)) low = m1;   // min lies in [m1, high]
+        else high = m2;                 // min lies in [low, m2]
+    }
+    return low; // the x-coordinate of minimum
+}
+
+/****************************************************
+ * EXAMPLE USAGE:
+ * auto f = [](double x) { return -1*(x-2)*(x-2)+3; }; // max at x=2
+ * double xmax = ternary_search_max(0, 5, f);
+ * double xmin = ternary_search_min(0, 5, f);
+ ****************************************************/
+
+
+
+ ------------------------------------------------------
+// Function: Prime factorization using SPF (Smallest Prime Factor)
+vector<int> prime_factors(int x, const vector<int>& spf) {
+    vector<int> factors;
+    while(x > 1) {
+        factors.push_back(spf[x]);
+        x /= spf[x];
+    }
+    return factors;
+}
+
+
+int N = 1e6;
+vector<int> spf(N+1);
+for(int i = 0; i <= N; i++) spf[i] = i;
+for(int i = 2; i*i <= N; i++) {
+    if(spf[i] == i) {
+        for(int j = i*i; j <= N; j += i) {
+            if(spf[j] == j) spf[j] = i;
+        }
+    }
+}
+
+// Example
+int x = 18;
+vector<int> factors = prime_factors(x, spf); // returns {2, 3, 3}
+
+
+
+ 
